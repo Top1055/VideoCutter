@@ -17,7 +17,7 @@ namespace VideoCutter
     {
 
         private const float VER = 0.01F;
-        private const string URL = "http://alexfeetham.duckdns.org/videocutter/";
+        private const string URL = "";
         private ffMpeg.Converter fmc;
         private ffMpeg.VideoFile loadedFile;
         private bool fileLockOne = true;
