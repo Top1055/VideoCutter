@@ -46,7 +46,7 @@ namespace VideoCutter
             {
                 serverVer = float.Parse(wc.DownloadString(URL + "version.txt"));
             }
-            catch (Exception e) { return; } // Couldn't connect to site, probably down or lack of internet
+            catch (Exception) { return; } // Couldn't connect to site, probably down or lack of internet
 
             if (VER >= serverVer)
                 return;
@@ -121,7 +121,7 @@ namespace VideoCutter
                 if (double.Parse(endS.Text) >= 60)
                     return false;
 
-            } catch(Exception e) {
+            } catch(Exception) {
                 return false;
             }
             return true;

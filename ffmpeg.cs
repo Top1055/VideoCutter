@@ -215,9 +215,9 @@ namespace ffMpeg
             {
                 vf = new VideoFile(tempfile);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
 
             GetVideoInfo(vf);
@@ -240,9 +240,9 @@ namespace ffMpeg
             {
                 vf = new VideoFile(inputPath);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
             GetVideoInfo(vf);
             return vf;
