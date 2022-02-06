@@ -31,7 +31,7 @@ namespace VideoCutter
         {
             this.loadFileBtn = new System.Windows.Forms.Button();
             this.openVideoFile = new System.Windows.Forms.OpenFileDialog();
-            this.fileName = new System.Windows.Forms.Label();
+            this.fileNameLbl = new System.Windows.Forms.Label();
             this.confirmBtn = new System.Windows.Forms.Button();
             this.compressionCheck = new System.Windows.Forms.CheckBox();
             this.startH = new System.Windows.Forms.TextBox();
@@ -49,8 +49,9 @@ namespace VideoCutter
             this.endHLbl = new System.Windows.Forms.Label();
             this.endS = new System.Windows.Forms.TextBox();
             this.endH = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.outputNameLbl = new System.Windows.Forms.Label();
+            this.startBtn = new System.Windows.Forms.Button();
+            this.statusLbl = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // loadFileBtn
@@ -70,20 +71,20 @@ namespace VideoCutter
             this.openVideoFile.RestoreDirectory = true;
             this.openVideoFile.FileOk += new System.ComponentModel.CancelEventHandler(this.openVideoFile_FileOk);
             // 
-            // fileName
+            // fileNameLbl
             // 
-            this.fileName.AutoSize = true;
-            this.fileName.Location = new System.Drawing.Point(93, 16);
-            this.fileName.Name = "fileName";
-            this.fileName.Size = new System.Drawing.Size(87, 15);
-            this.fileName.TabIndex = 1;
-            this.fileName.Text = "PLACEHOLDER";
+            this.fileNameLbl.AutoSize = true;
+            this.fileNameLbl.Location = new System.Drawing.Point(93, 16);
+            this.fileNameLbl.Name = "fileNameLbl";
+            this.fileNameLbl.Size = new System.Drawing.Size(87, 15);
+            this.fileNameLbl.TabIndex = 1;
+            this.fileNameLbl.Text = "PLACEHOLDER";
             // 
             // confirmBtn
             // 
-            this.confirmBtn.Location = new System.Drawing.Point(7, 165);
+            this.confirmBtn.Location = new System.Drawing.Point(12, 41);
             this.confirmBtn.Name = "confirmBtn";
-            this.confirmBtn.Size = new System.Drawing.Size(334, 41);
+            this.confirmBtn.Size = new System.Drawing.Size(75, 20);
             this.confirmBtn.TabIndex = 3;
             this.confirmBtn.Text = "Save to...";
             this.confirmBtn.UseVisualStyleBackColor = true;
@@ -92,7 +93,7 @@ namespace VideoCutter
             // compressionCheck
             // 
             this.compressionCheck.AutoSize = true;
-            this.compressionCheck.Location = new System.Drawing.Point(12, 140);
+            this.compressionCheck.Location = new System.Drawing.Point(17, 154);
             this.compressionCheck.Name = "compressionCheck";
             this.compressionCheck.Size = new System.Drawing.Size(96, 19);
             this.compressionCheck.TabIndex = 4;
@@ -101,7 +102,7 @@ namespace VideoCutter
             // 
             // startH
             // 
-            this.startH.Location = new System.Drawing.Point(7, 96);
+            this.startH.Location = new System.Drawing.Point(12, 110);
             this.startH.Name = "startH";
             this.startH.Size = new System.Drawing.Size(45, 23);
             this.startH.TabIndex = 5;
@@ -109,7 +110,7 @@ namespace VideoCutter
             // 
             // startS
             // 
-            this.startS.Location = new System.Drawing.Point(109, 96);
+            this.startS.Location = new System.Drawing.Point(114, 110);
             this.startS.Name = "startS";
             this.startS.Size = new System.Drawing.Size(45, 23);
             this.startS.TabIndex = 6;
@@ -119,7 +120,7 @@ namespace VideoCutter
             // 
             this.startLbl.AutoSize = true;
             this.startLbl.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.startLbl.Location = new System.Drawing.Point(7, 50);
+            this.startLbl.Location = new System.Drawing.Point(12, 64);
             this.startLbl.Name = "startLbl";
             this.startLbl.Size = new System.Drawing.Size(45, 21);
             this.startLbl.TabIndex = 7;
@@ -133,7 +134,7 @@ namespace VideoCutter
             // startHLbl
             // 
             this.startHLbl.AutoSize = true;
-            this.startHLbl.Location = new System.Drawing.Point(7, 78);
+            this.startHLbl.Location = new System.Drawing.Point(12, 92);
             this.startHLbl.Name = "startHLbl";
             this.startHLbl.Size = new System.Drawing.Size(39, 15);
             this.startHLbl.TabIndex = 8;
@@ -141,7 +142,7 @@ namespace VideoCutter
             // 
             // startM
             // 
-            this.startM.Location = new System.Drawing.Point(58, 96);
+            this.startM.Location = new System.Drawing.Point(63, 110);
             this.startM.Name = "startM";
             this.startM.Size = new System.Drawing.Size(45, 23);
             this.startM.TabIndex = 9;
@@ -150,7 +151,7 @@ namespace VideoCutter
             // startMLbl
             // 
             this.startMLbl.AutoSize = true;
-            this.startMLbl.Location = new System.Drawing.Point(58, 78);
+            this.startMLbl.Location = new System.Drawing.Point(63, 92);
             this.startMLbl.Name = "startMLbl";
             this.startMLbl.Size = new System.Drawing.Size(50, 15);
             this.startMLbl.TabIndex = 10;
@@ -159,7 +160,7 @@ namespace VideoCutter
             // startSLbl
             // 
             this.startSLbl.AutoSize = true;
-            this.startSLbl.Location = new System.Drawing.Point(109, 78);
+            this.startSLbl.Location = new System.Drawing.Point(114, 92);
             this.startSLbl.Name = "startSLbl";
             this.startSLbl.Size = new System.Drawing.Size(51, 15);
             this.startSLbl.TabIndex = 11;
@@ -169,7 +170,7 @@ namespace VideoCutter
             // 
             this.endLbl.AutoSize = true;
             this.endLbl.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.endLbl.Location = new System.Drawing.Point(188, 50);
+            this.endLbl.Location = new System.Drawing.Point(193, 64);
             this.endLbl.Name = "endLbl";
             this.endLbl.Size = new System.Drawing.Size(36, 21);
             this.endLbl.TabIndex = 12;
@@ -178,7 +179,7 @@ namespace VideoCutter
             // endSLbl
             // 
             this.endSLbl.AutoSize = true;
-            this.endSLbl.Location = new System.Drawing.Point(290, 78);
+            this.endSLbl.Location = new System.Drawing.Point(295, 92);
             this.endSLbl.Name = "endSLbl";
             this.endSLbl.Size = new System.Drawing.Size(51, 15);
             this.endSLbl.TabIndex = 18;
@@ -187,7 +188,7 @@ namespace VideoCutter
             // endMLbl
             // 
             this.endMLbl.AutoSize = true;
-            this.endMLbl.Location = new System.Drawing.Point(239, 78);
+            this.endMLbl.Location = new System.Drawing.Point(244, 92);
             this.endMLbl.Name = "endMLbl";
             this.endMLbl.Size = new System.Drawing.Size(50, 15);
             this.endMLbl.TabIndex = 17;
@@ -195,7 +196,7 @@ namespace VideoCutter
             // 
             // endM
             // 
-            this.endM.Location = new System.Drawing.Point(239, 96);
+            this.endM.Location = new System.Drawing.Point(244, 110);
             this.endM.Name = "endM";
             this.endM.Size = new System.Drawing.Size(45, 23);
             this.endM.TabIndex = 16;
@@ -204,7 +205,7 @@ namespace VideoCutter
             // endHLbl
             // 
             this.endHLbl.AutoSize = true;
-            this.endHLbl.Location = new System.Drawing.Point(188, 78);
+            this.endHLbl.Location = new System.Drawing.Point(193, 92);
             this.endHLbl.Name = "endHLbl";
             this.endHLbl.Size = new System.Drawing.Size(39, 15);
             this.endHLbl.TabIndex = 15;
@@ -212,7 +213,7 @@ namespace VideoCutter
             // 
             // endS
             // 
-            this.endS.Location = new System.Drawing.Point(290, 96);
+            this.endS.Location = new System.Drawing.Point(295, 110);
             this.endS.Name = "endS";
             this.endS.Size = new System.Drawing.Size(45, 23);
             this.endS.TabIndex = 14;
@@ -220,35 +221,49 @@ namespace VideoCutter
             // 
             // endH
             // 
-            this.endH.Location = new System.Drawing.Point(188, 96);
+            this.endH.Location = new System.Drawing.Point(193, 110);
             this.endH.Name = "endH";
             this.endH.Size = new System.Drawing.Size(45, 23);
             this.endH.TabIndex = 13;
             this.endH.Text = "00";
             // 
-            // textBox1
+            // outputNameLbl
             // 
-            this.textBox1.Location = new System.Drawing.Point(230, 136);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 23);
-            this.textBox1.TabIndex = 19;
+            this.outputNameLbl.AutoSize = true;
+            this.outputNameLbl.Location = new System.Drawing.Point(93, 44);
+            this.outputNameLbl.Name = "outputNameLbl";
+            this.outputNameLbl.Size = new System.Drawing.Size(87, 15);
+            this.outputNameLbl.TabIndex = 21;
+            this.outputNameLbl.Text = "PLACEHOLDER";
             // 
-            // label1
+            // startBtn
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(183, 141);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(41, 15);
-            this.label1.TabIndex = 20;
-            this.label1.Text = "bitrate";
+            this.startBtn.Enabled = false;
+            this.startBtn.Location = new System.Drawing.Point(12, 179);
+            this.startBtn.Name = "startBtn";
+            this.startBtn.Size = new System.Drawing.Size(328, 51);
+            this.startBtn.TabIndex = 22;
+            this.startBtn.Text = "Start";
+            this.startBtn.UseVisualStyleBackColor = true;
+            this.startBtn.Click += new System.EventHandler(this.startBtn_Click);
+            // 
+            // statusLbl
+            // 
+            this.statusLbl.AutoSize = true;
+            this.statusLbl.Location = new System.Drawing.Point(12, 233);
+            this.statusLbl.Name = "statusLbl";
+            this.statusLbl.Size = new System.Drawing.Size(26, 15);
+            this.statusLbl.TabIndex = 24;
+            this.statusLbl.Text = "Idle";
             // 
             // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(397, 219);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox1);
+            this.ClientSize = new System.Drawing.Size(354, 259);
+            this.Controls.Add(this.statusLbl);
+            this.Controls.Add(this.startBtn);
+            this.Controls.Add(this.outputNameLbl);
             this.Controls.Add(this.endSLbl);
             this.Controls.Add(this.endMLbl);
             this.Controls.Add(this.endM);
@@ -265,7 +280,7 @@ namespace VideoCutter
             this.Controls.Add(this.startH);
             this.Controls.Add(this.compressionCheck);
             this.Controls.Add(this.confirmBtn);
-            this.Controls.Add(this.fileName);
+            this.Controls.Add(this.fileNameLbl);
             this.Controls.Add(this.loadFileBtn);
             this.Name = "Form";
             this.Text = "Video Cutter";
@@ -278,7 +293,7 @@ namespace VideoCutter
 
         private System.Windows.Forms.Button loadFileBtn;
         private System.Windows.Forms.OpenFileDialog openVideoFile;
-        private System.Windows.Forms.Label fileName;
+        private System.Windows.Forms.Label fileNameLbl;
         private System.Windows.Forms.Button confirmBtn;
         private System.Windows.Forms.CheckBox compressionCheck;
         private System.Windows.Forms.TextBox startH;
@@ -296,8 +311,9 @@ namespace VideoCutter
         private System.Windows.Forms.Label endHLbl;
         private System.Windows.Forms.TextBox endS;
         private System.Windows.Forms.TextBox endH;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label outputNameLbl;
+        private System.Windows.Forms.Button startBtn;
+        private System.Windows.Forms.Label statusLbl;
     }
 }
 

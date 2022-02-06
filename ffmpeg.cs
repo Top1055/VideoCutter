@@ -6,6 +6,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace ffMpeg
 {
@@ -307,16 +308,6 @@ namespace ffMpeg
             input.infoGathered = true;
         }
         #endregion
-
-        public void cutFile(String start, String end, VideoFile input, string outputFile, bool compress, int bitrate)
-        {
-            string Params = "-ss " + start + " -i " + '\"' + input.Path + '\"' + " -to " + end;
-            if (compress)
-                Params += " -b 3200k";
-            Params += " -c copy \"" + outputFile + '\"';
-            string Output = RunProcess(Params);
-            Debug.WriteLine(Output);
-        }
     }
 
     public class VideoFile
