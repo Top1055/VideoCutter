@@ -1,51 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Diagnostics;
 using System.IO;
+using Microsoft.WindowsAPICodePack.Shell;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+
+/* Arguments for ffmpeg
+ * 
+ * Cutting duration
+ * -ss startTime -t endTime -i "input.mp4" -c copy "./1.mp4"
+ * 
+ * Pass one
+ * -y -i "./1.mp4" -c:v libx264 -b:v 4500k -pass 1 -an -f null NULL
+ * 
+ * Pass two
+ * -i "./1.mp4" -c:v libx264 -b:v 4500k -pass 2 -c:a aac -b:a 128k "output.mp4"
+ */
+
 
 namespace VideoCutter
 {
     public partial class Form : System.Windows.Forms.Form
     {
 
-        private const float VER = 0.01F;
-        private const string URL = "";
-        private ffMpeg.Converter fmc;
-        private ffMpeg.VideoFile loadedFile;
-        private bool fileLockOne = true;
-        private bool fileLockTwo = true;
+        private const float VER = 0.06F;
+        private const string URL = "http://alexfeetham.duckdns.org/videocutter/";
+        enum Stack
+        {
+            compress_1,
+            compress_2,
+            complete
+        }
 
         public Form()
         {
             InitializeComponent();
             updateClient();
-
-            fmc = new ffMpeg.Converter(@"./ffmpeg.exe");
-            openVideoFile.Filter = "Mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*";
-            saveFileDialog.Filter = "Mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*";
             fileNameLbl.Text = "";
             outputNameLbl.Text = "";
-        }
+            this.Text += " | Version: " + VER.ToString();
 
+        }
         private void updateClient()
         {
             //Variables
-            float serverVer = 0F;
+            float serverVer;
             WebClient wc = new WebClient();
 
             // Check for update
-            try
-            {
-                serverVer = float.Parse(wc.DownloadString(URL + "version.txt"));
-            }
+            try { serverVer = float.Parse(wc.DownloadString(URL + "version.txt")); }
             catch (Exception) { return; } // Couldn't connect to site, probably down or lack of internet
 
             if (VER >= serverVer)
@@ -56,53 +62,57 @@ namespace VideoCutter
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 return;
 
-            Process.Start(@"./Updater.exe");
-            this.Close();
+            Process proc = new Process();
+            proc.StartInfo.FileName = "Updater.exe";
+            proc.StartInfo.UseShellExecute = true;
+            proc.StartInfo.Verb = "runas";
+            proc.Start();
+            Environment.Exit(0);
         }
 
+        #region Grabbing files
         private void loadFileBtn_Click(object sender, EventArgs e)
         {
             //Open file dialog
-            openVideoFile.ShowDialog();
+            inputVideoFile.ShowDialog();
         }
-
         private void openVideoFile_FileOk(object sender, CancelEventArgs e)
         {
             // Grab video information
-            loadedFile = new ffMpeg.VideoFile(openVideoFile.FileName);
-            fmc.GetVideoInfo(loadedFile);
-            fileNameLbl.Text = loadedFile.Path;
-            splitDuration(loadedFile.Duration.ToString());
-            fileLockOne = false;
-            if (!fileLockTwo)
-                startBtn.Enabled = true;
+            fileNameLbl.Text = inputVideoFile.FileName;
+            // Grab video length
+            using (ShellObject shell = ShellObject.FromParsingName(inputVideoFile.FileName))
+            {
+                splitDuration(shell.Properties.System.Media.Duration.FormatForDisplay(PropertyDescriptionFormatOptions.None));
+            }
         }
+        private void confirmBtn_Click(object sender, EventArgs e)
+        {
+            outputFileDialog.ShowDialog();
+        }
+        private void saveFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            outputNameLbl.Text = outputFileDialog.FileName;
+        }
+        #endregion
 
         private void splitDuration(string v)
         {
             string[] data = v.Split(":");
             endH.Text = data[0];
             endM.Text = data[1];
-            endS.Text = data[2];
-
-            startH.Text = "00";
-            startM.Text = "00";
-            startS.Text = "00.00";
+            endS.Text = data[2].Split(".")[0];
         }
 
-        private void confirmBtn_Click(object sender, EventArgs e)
+        private TimeSpan[] combine()
         {
-            saveFileDialog.ShowDialog();
-        }
+            TimeSpan[] times = {
+                TimeSpan.Parse(startH.Text + ":" + startM.Text + ":" + startS.Text),
+                TimeSpan.Parse(endH.Text + ":" + endM.Text + ":" + endS.Text)
+            };
 
-        private void saveFileDialog_FileOk(object sender, CancelEventArgs e)
-        {
-            outputNameLbl.Text = saveFileDialog.FileName;
-            fileLockTwo = false;
-            if (!fileLockOne)
-                startBtn.Enabled = true;
+            return times;
         }
-
         private bool validInputs()
         {
             try
@@ -120,6 +130,8 @@ namespace VideoCutter
                     return false;
                 if (double.Parse(endS.Text) >= 60)
                     return false;
+                if (float.Parse(bitrateTxt.Text) < 0)
+                    return false;
 
             } catch(Exception) {
                 return false;
@@ -129,7 +141,10 @@ namespace VideoCutter
 
         private void startBtn_Click(object sender, EventArgs e)
         {
-            if(fileLockOne || fileLockTwo)
+            if (statusLbl.Text != "Complete." && statusLbl.Text != "Idle")
+                return;
+            // Check for valid files
+            if(outputNameLbl.Text == "" || fileNameLbl.Text == "")
             {
                 MessageBox.Show("Missing file path", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -141,26 +156,20 @@ namespace VideoCutter
                 return;
             }
 
-            cutFile(
-                startH.Text + ":" + startM.Text + ":" + startS.Text,
-                endH.Text + ":" + endM.Text + ":" + endS.Text,
-                loadedFile, saveFileDialog.FileName, compressionCheck.Checked);
+            statusLbl.Text = "Cutting video time...";
+            var times = combine();
+            string args = "-ss " + times[0].ToString() + " -t " + (times[1] - times[0]).ToString() + " -i " + '\"' + inputVideoFile.FileName + "\" -c copy \"./1.mp4\"";
+
+            Stack status = compressionCheck.Checked ? Stack.compress_1 : Stack.complete;
+            SetText("Trimming video.", statusLbl);
+            _ = ffmpeg(args, status);
         }
 
-        public void cutFile(String start, String end, ffMpeg.VideoFile input, string outputFile, bool compress)
-        {
-            startBtn.Enabled = false;
-            string args = "-progress - -nostats -ss " + start + " -i " + '\"' + input.Path + '\"' + " -to " + end + " -c copy \"" + outputFile + '\"';
-            statusLbl.Text = "Cutting video...";
-            _ = trimVideo(args, compress, outputFile);
-        }
-
-        public async Task<int> trimVideo(string args, bool compress, string fileToCompress)
-        {
+        private async Task<int> ffmpeg(string args, Stack status) {
             try
             {
+                Debug.WriteLine(args);
                 var tcs = new TaskCompletionSource<int>();
-
                 var process = new Process
                 {
                     StartInfo = {
@@ -175,17 +184,38 @@ namespace VideoCutter
                 };
 
 
-                process.Exited += (sender, args) =>
+                process.Exited += (sender, e) =>
                 {
-                    if (compress)
+                    // Calculate bitrate to achieve target file size
+                    var times = combine();
+                    double duration = (times[1] - times[0]).TotalSeconds;
+                    double n = (int)((8192 * double.Parse(bitrateTxt.Text)) / duration) - 128;
+                    int bitrate = (int)(Math.Floor(n / 50.0) * 50.0);
+                    if (bitrate > 4500)
+                        bitrate = 4500;
+
+                    string args;
+
+                    switch (status)
                     {
-                        SetText("Compressing...", statusLbl);
-                        _ = compressFile(fileToCompress);
+                        case Stack.complete:
+                            File.Delete("./1.mp4");
+                            // Reset locks
+                            SetText("Complete.", statusLbl);
+                            break;
+
+                        case Stack.compress_1:
+                            args = "-y -i \"./1.mp4\" -c:v libx264 -b:v " + bitrate + "k -pass 1 -an -f mp4 NULL";
+                            SetText("Compression (1/2).", statusLbl);
+                            _ = ffmpeg(args, Stack.compress_2);
+                            break;
+
+                        case Stack.compress_2:
+                            args = "-i \"./1.mp4\" -c:v libx264 -b:v " + bitrate + "k -pass 2 -c:a aac \"" + outputFileDialog.FileName + '\"';
+                            SetText("Compression (2/2).", statusLbl);
+                            _ = ffmpeg(args, Stack.complete);
+                            break;
                     }
-                    else
-                        Complete();
-                    tcs.SetResult(process.ExitCode);
-                    process.Dispose();
                 };
 
                 process.Start();
@@ -193,86 +223,15 @@ namespace VideoCutter
                 // Reading both streams synchronously would generate another deadlock.
                 process.BeginOutputReadLine();
                 string tmpErrorOut = await process.StandardError.ReadToEndAsync();
-                //process.WaitForExit();
 
 
                 return await tcs.Task;
             }
             catch (Exception ee)
             {
-                Console.WriteLine(ee.Message);
+                Debug.WriteLine(ee.Message);
             }
             return -1;
-        }
-        public async Task<int> compressFile(string fileToCompress)
-        {
-            try
-            {
-                // Grabbing file data
-                ffMpeg.VideoFile compressLocation = new ffMpeg.VideoFile(fileToCompress);
-                fmc.GetVideoInfo(compressLocation);
-
-                // Calculate bitrate
-                double duration = compressLocation.Duration.TotalSeconds;
-                double n = (int)(65536 / duration) - 128;
-                int bitrate = (int)(Math.Floor(n / 50.0) * 50.0);
-                if (bitrate > 4500)
-                    bitrate = 4500;
-
-                var tcs = new TaskCompletionSource<int>();
-
-                var process = new Process
-                {
-                    StartInfo = {
-                    FileName = @"./ffmpeg.exe",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    Arguments = "-progress - -nostats -y -i \"" + fileToCompress + "\" -c:v libx264 -b:v " + bitrate + "k temp.mp4",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                },
-                    EnableRaisingEvents = true
-                };
-
-
-                process.Exited += (sender, args) =>
-                {
-                    Complete(fileToCompress);
-                    tcs.SetResult(process.ExitCode);
-                    process.Dispose();
-                };
-
-                process.Start();
-                // Use asynchronous read operations on at least one of the streams.
-                // Reading both streams synchronously would generate another deadlock.
-                process.BeginOutputReadLine();
-                string tmpErrorOut = await process.StandardError.ReadToEndAsync();
-                //process.WaitForExit();
-
-
-                return await tcs.Task;
-            }
-            catch (Exception ee)
-            {
-                Console.WriteLine(ee.Message);
-            }
-            return -1;
-        }
-        private void Complete(string fileName = null)
-        {
-            if(fileName != null) //no compression
-            {
-                SetText("Moving file...", statusLbl);
-                File.Delete(fileName);
-                File.Move(@".\temp.mp4", fileName);
-            }
-
-            // Reset locks
-            SetText("", fileNameLbl);
-            SetText("", outputNameLbl);
-            fileLockOne = true;
-            fileLockTwo = true;
-            SetText("Complete.", statusLbl);
         }
 
         delegate void SetTextCallback(string text, Label lbl);

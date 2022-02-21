@@ -29,15 +29,16 @@ namespace VideoCutter
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form));
             this.loadFileBtn = new System.Windows.Forms.Button();
-            this.openVideoFile = new System.Windows.Forms.OpenFileDialog();
+            this.inputVideoFile = new System.Windows.Forms.OpenFileDialog();
             this.fileNameLbl = new System.Windows.Forms.Label();
             this.confirmBtn = new System.Windows.Forms.Button();
             this.compressionCheck = new System.Windows.Forms.CheckBox();
             this.startH = new System.Windows.Forms.TextBox();
             this.startS = new System.Windows.Forms.TextBox();
             this.startLbl = new System.Windows.Forms.Label();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.outputFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.startHLbl = new System.Windows.Forms.Label();
             this.startM = new System.Windows.Forms.TextBox();
             this.startMLbl = new System.Windows.Forms.Label();
@@ -52,6 +53,8 @@ namespace VideoCutter
             this.outputNameLbl = new System.Windows.Forms.Label();
             this.startBtn = new System.Windows.Forms.Button();
             this.statusLbl = new System.Windows.Forms.Label();
+            this.bitrateTxt = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // loadFileBtn
@@ -64,12 +67,12 @@ namespace VideoCutter
             this.loadFileBtn.UseVisualStyleBackColor = true;
             this.loadFileBtn.Click += new System.EventHandler(this.loadFileBtn_Click);
             // 
-            // openVideoFile
+            // inputVideoFile
             // 
-            this.openVideoFile.DefaultExt = "mp4";
-            this.openVideoFile.FileName = "openVideoFile";
-            this.openVideoFile.RestoreDirectory = true;
-            this.openVideoFile.FileOk += new System.ComponentModel.CancelEventHandler(this.openVideoFile_FileOk);
+            this.inputVideoFile.DefaultExt = "mp4";
+            this.inputVideoFile.Filter = "Mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*";
+            this.inputVideoFile.RestoreDirectory = true;
+            this.inputVideoFile.FileOk += new System.ComponentModel.CancelEventHandler(this.openVideoFile_FileOk);
             // 
             // fileNameLbl
             // 
@@ -85,7 +88,7 @@ namespace VideoCutter
             this.confirmBtn.Location = new System.Drawing.Point(12, 41);
             this.confirmBtn.Name = "confirmBtn";
             this.confirmBtn.Size = new System.Drawing.Size(75, 20);
-            this.confirmBtn.TabIndex = 3;
+            this.confirmBtn.TabIndex = 1;
             this.confirmBtn.Text = "Save to...";
             this.confirmBtn.UseVisualStyleBackColor = true;
             this.confirmBtn.Click += new System.EventHandler(this.confirmBtn_Click);
@@ -93,10 +96,10 @@ namespace VideoCutter
             // compressionCheck
             // 
             this.compressionCheck.AutoSize = true;
-            this.compressionCheck.Location = new System.Drawing.Point(17, 154);
+            this.compressionCheck.Location = new System.Drawing.Point(120, 176);
             this.compressionCheck.Name = "compressionCheck";
             this.compressionCheck.Size = new System.Drawing.Size(96, 19);
-            this.compressionCheck.TabIndex = 4;
+            this.compressionCheck.TabIndex = 8;
             this.compressionCheck.Text = "Compression";
             this.compressionCheck.UseVisualStyleBackColor = true;
             // 
@@ -105,7 +108,7 @@ namespace VideoCutter
             this.startH.Location = new System.Drawing.Point(12, 110);
             this.startH.Name = "startH";
             this.startH.Size = new System.Drawing.Size(45, 23);
-            this.startH.TabIndex = 5;
+            this.startH.TabIndex = 2;
             this.startH.Text = "00";
             // 
             // startS
@@ -113,7 +116,7 @@ namespace VideoCutter
             this.startS.Location = new System.Drawing.Point(114, 110);
             this.startS.Name = "startS";
             this.startS.Size = new System.Drawing.Size(45, 23);
-            this.startS.TabIndex = 6;
+            this.startS.TabIndex = 4;
             this.startS.Text = "00.00";
             // 
             // startLbl
@@ -126,10 +129,11 @@ namespace VideoCutter
             this.startLbl.TabIndex = 7;
             this.startLbl.Text = "Start:";
             // 
-            // saveFileDialog
+            // outputFileDialog
             // 
-            this.saveFileDialog.DefaultExt = "mp4";
-            this.saveFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog_FileOk);
+            this.outputFileDialog.DefaultExt = "mp4";
+            this.outputFileDialog.Filter = "Mp4 files (*.mp4)|*.mp4|All files (*.*)|*.*";
+            this.outputFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog_FileOk);
             // 
             // startHLbl
             // 
@@ -145,7 +149,7 @@ namespace VideoCutter
             this.startM.Location = new System.Drawing.Point(63, 110);
             this.startM.Name = "startM";
             this.startM.Size = new System.Drawing.Size(45, 23);
-            this.startM.TabIndex = 9;
+            this.startM.TabIndex = 3;
             this.startM.Text = "00";
             // 
             // startMLbl
@@ -199,7 +203,7 @@ namespace VideoCutter
             this.endM.Location = new System.Drawing.Point(244, 110);
             this.endM.Name = "endM";
             this.endM.Size = new System.Drawing.Size(45, 23);
-            this.endM.TabIndex = 16;
+            this.endM.TabIndex = 6;
             this.endM.Text = "00";
             // 
             // endHLbl
@@ -216,7 +220,7 @@ namespace VideoCutter
             this.endS.Location = new System.Drawing.Point(295, 110);
             this.endS.Name = "endS";
             this.endS.Size = new System.Drawing.Size(45, 23);
-            this.endS.TabIndex = 14;
+            this.endS.TabIndex = 7;
             this.endS.Text = "00.00";
             // 
             // endH
@@ -224,7 +228,7 @@ namespace VideoCutter
             this.endH.Location = new System.Drawing.Point(193, 110);
             this.endH.Name = "endH";
             this.endH.Size = new System.Drawing.Size(45, 23);
-            this.endH.TabIndex = 13;
+            this.endH.TabIndex = 5;
             this.endH.Text = "00";
             // 
             // outputNameLbl
@@ -238,11 +242,10 @@ namespace VideoCutter
             // 
             // startBtn
             // 
-            this.startBtn.Enabled = false;
-            this.startBtn.Location = new System.Drawing.Point(12, 179);
+            this.startBtn.Location = new System.Drawing.Point(14, 203);
             this.startBtn.Name = "startBtn";
             this.startBtn.Size = new System.Drawing.Size(328, 51);
-            this.startBtn.TabIndex = 22;
+            this.startBtn.TabIndex = 9;
             this.startBtn.Text = "Start";
             this.startBtn.UseVisualStyleBackColor = true;
             this.startBtn.Click += new System.EventHandler(this.startBtn_Click);
@@ -250,17 +253,36 @@ namespace VideoCutter
             // statusLbl
             // 
             this.statusLbl.AutoSize = true;
-            this.statusLbl.Location = new System.Drawing.Point(12, 233);
+            this.statusLbl.Location = new System.Drawing.Point(14, 257);
             this.statusLbl.Name = "statusLbl";
             this.statusLbl.Size = new System.Drawing.Size(26, 15);
             this.statusLbl.TabIndex = 24;
             this.statusLbl.Text = "Idle";
             // 
+            // bitrateTxt
+            // 
+            this.bitrateTxt.Location = new System.Drawing.Point(14, 174);
+            this.bitrateTxt.Name = "bitrateTxt";
+            this.bitrateTxt.Size = new System.Drawing.Size(100, 23);
+            this.bitrateTxt.TabIndex = 26;
+            this.bitrateTxt.Text = "7.5";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(14, 153);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(91, 15);
+            this.label1.TabIndex = 27;
+            this.label1.Text = "Target Size (MB)";
+            // 
             // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(354, 259);
+            this.ClientSize = new System.Drawing.Size(354, 282);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.bitrateTxt);
             this.Controls.Add(this.statusLbl);
             this.Controls.Add(this.startBtn);
             this.Controls.Add(this.outputNameLbl);
@@ -282,6 +304,7 @@ namespace VideoCutter
             this.Controls.Add(this.confirmBtn);
             this.Controls.Add(this.fileNameLbl);
             this.Controls.Add(this.loadFileBtn);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form";
             this.Text = "Video Cutter";
             this.ResumeLayout(false);
@@ -292,14 +315,14 @@ namespace VideoCutter
         #endregion
 
         private System.Windows.Forms.Button loadFileBtn;
-        private System.Windows.Forms.OpenFileDialog openVideoFile;
+        private System.Windows.Forms.OpenFileDialog inputVideoFile;
         private System.Windows.Forms.Label fileNameLbl;
         private System.Windows.Forms.Button confirmBtn;
         private System.Windows.Forms.CheckBox compressionCheck;
         private System.Windows.Forms.TextBox startH;
         private System.Windows.Forms.TextBox startS;
         private System.Windows.Forms.Label startLbl;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.SaveFileDialog outputFileDialog;
         private System.Windows.Forms.Label startHLbl;
         private System.Windows.Forms.TextBox startM;
         private System.Windows.Forms.Label startMLbl;
@@ -314,6 +337,8 @@ namespace VideoCutter
         private System.Windows.Forms.Label outputNameLbl;
         private System.Windows.Forms.Button startBtn;
         private System.Windows.Forms.Label statusLbl;
+        private System.Windows.Forms.TextBox bitrateTxt;
+        private System.Windows.Forms.Label label1;
     }
 }
 
