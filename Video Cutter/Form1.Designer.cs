@@ -52,10 +52,10 @@
             this.video_height = new System.Windows.Forms.TextBox();
             this.video_width = new System.Windows.Forms.TextBox();
             this.video_size = new System.Windows.Forms.TextBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
+            this.no_audio = new System.Windows.Forms.CheckBox();
+            this.audio_checked = new System.Windows.Forms.CheckBox();
+            this.res_checkbox = new System.Windows.Forms.CheckBox();
+            this.compress_checked = new System.Windows.Forms.CheckBox();
             this.time_box.SuspendLayout();
             this.file_box.SuspendLayout();
             this.setting_box.SuspendLayout();
@@ -93,6 +93,7 @@
             this.start_btn.TabIndex = 2;
             this.start_btn.Text = "Start";
             this.start_btn.UseVisualStyleBackColor = true;
+            this.start_btn.Click += new System.EventHandler(this.start_btn_Click);
             // 
             // video_fps
             // 
@@ -110,7 +111,7 @@
             this.start_time.Name = "start_time";
             this.start_time.Size = new System.Drawing.Size(204, 26);
             this.start_time.TabIndex = 1;
-            this.start_time.Text = "00:00:00.00";
+            this.start_time.Text = "00:00:00";
             // 
             // end_time
             // 
@@ -119,7 +120,7 @@
             this.end_time.Name = "end_time";
             this.end_time.Size = new System.Drawing.Size(204, 26);
             this.end_time.TabIndex = 2;
-            this.end_time.Text = "00:00:00.00";
+            this.end_time.Text = "00:00:00";
             // 
             // change_fps
             // 
@@ -131,6 +132,7 @@
             this.change_fps.TabIndex = 7;
             this.change_fps.Text = "Change framerate";
             this.change_fps.UseVisualStyleBackColor = true;
+            this.change_fps.CheckedChanged += new System.EventHandler(this.change_fps_CheckedChanged);
             // 
             // load_file
             // 
@@ -220,10 +222,10 @@
             this.setting_box.Controls.Add(this.video_width);
             this.setting_box.Controls.Add(this.video_size);
             this.setting_box.Controls.Add(this.video_fps);
-            this.setting_box.Controls.Add(this.checkBox3);
-            this.setting_box.Controls.Add(this.checkBox2);
-            this.setting_box.Controls.Add(this.checkBox1);
-            this.setting_box.Controls.Add(this.checkBox4);
+            this.setting_box.Controls.Add(this.no_audio);
+            this.setting_box.Controls.Add(this.audio_checked);
+            this.setting_box.Controls.Add(this.res_checkbox);
+            this.setting_box.Controls.Add(this.compress_checked);
             this.setting_box.Controls.Add(this.change_fps);
             this.setting_box.Enabled = false;
             this.setting_box.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -318,49 +320,53 @@
             this.video_size.Size = new System.Drawing.Size(100, 26);
             this.video_size.TabIndex = 8;
             // 
-            // checkBox3
+            // no_audio
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox3.Location = new System.Drawing.Point(12, 223);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(108, 23);
-            this.checkBox3.TabIndex = 12;
-            this.checkBox3.Text = "No audio";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.no_audio.AutoSize = true;
+            this.no_audio.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.no_audio.Location = new System.Drawing.Point(12, 223);
+            this.no_audio.Name = "no_audio";
+            this.no_audio.Size = new System.Drawing.Size(108, 23);
+            this.no_audio.TabIndex = 12;
+            this.no_audio.Text = "No audio";
+            this.no_audio.UseVisualStyleBackColor = true;
+            this.no_audio.CheckedChanged += new System.EventHandler(this.no_audio_CheckedChanged);
             // 
-            // checkBox2
+            // audio_checked
             // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox2.Location = new System.Drawing.Point(139, 192);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(168, 23);
-            this.checkBox2.TabIndex = 11;
-            this.checkBox2.Text = "Compress audio";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.audio_checked.AutoSize = true;
+            this.audio_checked.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.audio_checked.Location = new System.Drawing.Point(139, 192);
+            this.audio_checked.Name = "audio_checked";
+            this.audio_checked.Size = new System.Drawing.Size(168, 23);
+            this.audio_checked.TabIndex = 11;
+            this.audio_checked.Text = "Compress audio";
+            this.audio_checked.UseVisualStyleBackColor = true;
+            this.audio_checked.CheckedChanged += new System.EventHandler(this.audio_checked_CheckedChanged);
             // 
-            // checkBox1
+            // res_checkbox
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox1.Location = new System.Drawing.Point(242, 57);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(198, 23);
-            this.checkBox1.TabIndex = 5;
-            this.checkBox1.Text = "Change resolution";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.res_checkbox.AutoSize = true;
+            this.res_checkbox.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.res_checkbox.Location = new System.Drawing.Point(242, 57);
+            this.res_checkbox.Name = "res_checkbox";
+            this.res_checkbox.Size = new System.Drawing.Size(198, 23);
+            this.res_checkbox.TabIndex = 5;
+            this.res_checkbox.Text = "Change resolution";
+            this.res_checkbox.UseVisualStyleBackColor = true;
+            this.res_checkbox.CheckedChanged += new System.EventHandler(this.res_checkbox_CheckedChanged);
             // 
-            // checkBox4
+            // compress_checked
             // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox4.Location = new System.Drawing.Point(118, 161);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(168, 23);
-            this.checkBox4.TabIndex = 9;
-            this.checkBox4.Text = "Compress video";
-            this.checkBox4.UseVisualStyleBackColor = true;
+            this.compress_checked.AutoSize = true;
+            this.compress_checked.Font = new System.Drawing.Font("DejaVu Sans Mono for Powerline", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.compress_checked.Location = new System.Drawing.Point(118, 161);
+            this.compress_checked.Name = "compress_checked";
+            this.compress_checked.Size = new System.Drawing.Size(168, 23);
+            this.compress_checked.TabIndex = 9;
+            this.compress_checked.Text = "Compress video";
+            this.compress_checked.UseVisualStyleBackColor = true;
+            this.compress_checked.CheckedChanged += new System.EventHandler(this.compress_checked_CheckedChanged);
             // 
             // VidoCutter
             // 
@@ -409,10 +415,10 @@
         private System.Windows.Forms.TextBox video_height;
         private System.Windows.Forms.TextBox video_width;
         private System.Windows.Forms.TextBox video_size;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckBox checkBox4;
+        private System.Windows.Forms.CheckBox no_audio;
+        private System.Windows.Forms.CheckBox audio_checked;
+        private System.Windows.Forms.CheckBox res_checkbox;
+        private System.Windows.Forms.CheckBox compress_checked;
     }
 }
 

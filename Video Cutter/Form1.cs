@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+using System.Text.RegularExpressions;
 
 namespace Video_Cutter
 {
@@ -190,9 +187,136 @@ namespace Video_Cutter
                 start_btn.Enabled = true;
             }
         }
+
+
         #endregion
 
+        #region Enabling input
+
+        private void res_checkbox_CheckedChanged(object sender, EventArgs e)
+        {
+            video_width.Enabled = res_checkbox.Checked;
+            video_height.Enabled = res_checkbox.Checked;
+        }
+
+        private void change_fps_CheckedChanged(object sender, EventArgs e)
+        {
+            video_fps.Enabled = change_fps.Checked;
+        }
+
+        private void compress_checked_CheckedChanged(object sender, EventArgs e)
+        {
+            video_size.Enabled = compress_checked.Checked;
+        }
+
+        private void audio_checked_CheckedChanged(object sender, EventArgs e)
+        {
+            audio_size.Enabled = audio_checked.Checked;
+        }
+
+        private void no_audio_CheckedChanged(object sender, EventArgs e)
+        {
+            if (audio_checked.Checked)
+            {
+                audio_size.Enabled = false;
+                audio_checked.Checked = false;
+            }
+        }
 
 
+
+        #endregion
+
+        private bool valid_inputs()
+        {
+            // Check time
+            if( new Regex(@"(?:[01]\d|2[0-3]):(?:[0-5]\d):(?:[0-5]\d)").IsMatch(start_time.Text) == false ) {
+                MessageBox.Show("Incorrect time format (HH:MM:SS.MS)", "Error: Time input",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (new Regex(@"(?:[01]\d|2[0-3]):(?:[0-5]\d):(?:[0-5]\d)").IsMatch(end_time.Text) == false)
+            {
+                MessageBox.Show("Incorrect time format (HH:MM:SS.MS)", "Error: Time input",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (change_fps.Checked)
+                try
+                {
+                    if (Convert.ToInt16(video_fps.Text) > src_video.FPS) {
+                        MessageBox.Show("FPS higher than source video", "Error: FPS input",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                } catch
+                {
+                    MessageBox.Show("FPS input must be a number", "Error: FPS input",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+            return true;
+        }
+
+        private void start_btn_Click(object sender, EventArgs e)
+        {
+            if (valid_inputs() == false)
+                return;
+
+            // ffmpeg -i movie.mp4 -ss 00:00:03 -t 00:00:08 -async 1 -strict -2 cut.mp4
+            string temp_path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            temp_path += "\\Video Cutter\\";
+            Directory.CreateDirectory(temp_path);
+            temp_path += "temp.mp4";
+
+            TimeSpan start = TimeSpan.Parse(start_time.Text);
+            TimeSpan end = TimeSpan.Parse(end_time.Text);
+
+            Process cmd = new Process();
+            cmd.StartInfo.FileName = @"powershell.exe";
+            cmd.StartInfo.RedirectStandardInput = true;
+            cmd.StartInfo.RedirectStandardOutput = true;
+            cmd.StartInfo.CreateNoWindow = true;
+            cmd.StartInfo.UseShellExecute = false;
+            cmd.Start();
+
+            cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{fileNameLbl.Text}' -ss {start_time.Text} -t {end - start} -async 1 -strict -2 -c copy '{temp_path}'");
+            cmd.StandardInput.Flush();
+            cmd.StandardInput.Close();
+            cmd.WaitForExit();
+
+            if(compress_checked.Checked)
+            {
+                // Calculate bitrate to achieve target file size
+                double duration = (end - start).TotalSeconds;
+                double n = (int)((8192 * double.Parse(video_size.Text)) / duration) - 128;
+                int bitrate = (int)(Math.Floor(n / 50.0) * 50.0);
+                if (bitrate > 3000)
+                    bitrate = 3000; // Capping bitrate to save time
+
+                cmd.Start();
+                cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 1 -an -f mp4 NULL");
+                cmd.StandardInput.Flush();
+                cmd.StandardInput.Close();
+                cmd.WaitForExit();
+
+                cmd.Start();
+                cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 2 -c:a aac '{outputNameLbl.Text}'");
+                cmd.StandardInput.Flush();
+                cmd.StandardInput.Close();
+                cmd.WaitForExit();
+
+                //$"-y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 1 -an -f mp4 NULL"
+                //$"-y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 2 -c:a aac '{}'";
+            }
+
+            MessageBox.Show("Complete", "Complete");
+
+            //System.Diagnostics.Process.Start("CMD.exe", startInfo.Arguments);
+
+        }
     }
 }
