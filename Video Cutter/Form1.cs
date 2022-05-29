@@ -14,7 +14,6 @@ namespace Video_Cutter
     {
 
         private Video_settings src_video;
-        private Video_settings output_video = new Video_settings();
         private const float VER = 0.07F;
         private const string URL = "https://alexfeetham.ddns.net/videocutter";
         enum Stack
@@ -66,6 +65,12 @@ namespace Video_Cutter
             {
                 get { return width; }
                 set { width = value; }
+            }
+
+            public int Height
+            {
+                get { return height; }
+                set { height = value; }
             }
 
             public string EndTime
@@ -216,10 +221,12 @@ namespace Video_Cutter
 
         private void no_audio_CheckedChanged(object sender, EventArgs e)
         {
+            audio_checked.Enabled = !no_audio.Checked;
             if (audio_checked.Checked)
             {
                 audio_size.Enabled = false;
                 audio_checked.Checked = false;
+                
             }
         }
 
@@ -275,15 +282,20 @@ namespace Video_Cutter
             TimeSpan start = TimeSpan.Parse(start_time.Text);
             TimeSpan end = TimeSpan.Parse(end_time.Text);
 
+            string audio_bitrate = audio_checked.Checked ? audio_size.Text : "128K";
+            string res = res_checkbox.Checked ? video_width.Text + "x" + video_height.Text : src_video.Width + "x" + src_video.Height;
+            string fps = change_fps.Checked ? video_fps.Text : src_video.FPS.ToString();
+
             Process cmd = new Process();
             cmd.StartInfo.FileName = @"powershell.exe";
             cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.RedirectStandardOutput = true;
+            cmd.StartInfo.RedirectStandardOutput = false;
             cmd.StartInfo.CreateNoWindow = true;
             cmd.StartInfo.UseShellExecute = false;
             cmd.Start();
 
-            cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{fileNameLbl.Text}' -ss {start_time.Text} -t {end - start} -async 1 -strict -2 -c copy '{temp_path}'");
+
+            cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{fileNameLbl.Text}' -ss {start_time.Text} -t {end - start} -async 1 -strict -2 -s {res} -r {fps} -b:a {audio_bitrate} '{temp_path}'");
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
             cmd.WaitForExit();
@@ -308,15 +320,15 @@ namespace Video_Cutter
                 cmd.StandardInput.Flush();
                 cmd.StandardInput.Close();
                 cmd.WaitForExit();
+            }
 
-                //$"-y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 1 -an -f mp4 NULL"
-                //$"-y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 2 -c:a aac '{}'";
+            // Clean up temp files because we're good developers
+            if (File.Exists(temp_path))
+            {
+                File.Delete(temp_path);
             }
 
             MessageBox.Show("Complete", "Complete");
-
-            //System.Diagnostics.Process.Start("CMD.exe", startInfo.Arguments);
-
         }
     }
 }

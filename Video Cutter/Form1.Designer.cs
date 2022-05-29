@@ -136,10 +136,12 @@
             // 
             // load_file
             // 
+            this.load_file.Filter = "Video Files|*.mp4|All files|*.*";
             this.load_file.FileOk += new System.ComponentModel.CancelEventHandler(this.load_file_FileOk);
             // 
             // save_file
             // 
+            this.save_file.Filter = "Video Files|*.mp4|All files|*.*";
             this.save_file.FileOk += new System.ComponentModel.CancelEventHandler(this.save_file_FileOk);
             // 
             // fileNameLbl
