@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VidoCutter));
             this.load_btn = new System.Windows.Forms.Button();
             this.save_btn = new System.Windows.Forms.Button();
             this.start_btn = new System.Windows.Forms.Button();
@@ -379,6 +380,7 @@
             this.Controls.Add(this.file_box);
             this.Controls.Add(this.time_box);
             this.Controls.Add(this.start_btn);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "VidoCutter";
             this.Text = "Video Cutter";
             this.time_box.ResumeLayout(false);

@@ -14,7 +14,7 @@ namespace Video_Cutter
     {
 
         private Video_settings src_video;
-        private const float VER = 0.07F;
+        private const float VER = 0.08F;
         private const string URL = "https://alexfeetham.ddns.net/videocutter";
         enum Stack
         {
@@ -122,8 +122,10 @@ namespace Video_Cutter
             WebClient wc = new WebClient();
 
             // Check for update
-            try { serverVer = float.Parse(wc.DownloadString(URL + "version.txt")); }
+            try { serverVer = float.Parse(wc.DownloadString(URL + "/version.txt")); }
             catch (Exception) { return; } // Couldn't connect to site, site down or lack of internet
+
+            Debug.WriteLine(serverVer);
 
             if (VER >= serverVer)
                 return;
@@ -295,7 +297,7 @@ namespace Video_Cutter
             cmd.Start();
 
 
-            cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{fileNameLbl.Text}' -ss {start_time.Text} -t {end - start} -async 1 -strict -2 -s {res} -r {fps} -b:a {audio_bitrate} '{temp_path}'");
+            cmd.StandardInput.WriteLine($"./ffmpeg.exe -y -i '{fileNameLbl.Text}' -ss {start_time.Text} -t {end - start} -async 1 -strict -2 -s {res} -r {fps} -b:a {audio_bitrate} '{temp_path}'");
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
             cmd.WaitForExit();
@@ -310,13 +312,20 @@ namespace Video_Cutter
                     bitrate = 3000; // Capping bitrate to save time
 
                 cmd.Start();
-                cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 1 -an -f mp4 NULL");
+                cmd.StandardInput.WriteLine($"./ffmpeg.exe -y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 1 -an -f mp4 NULL");
                 cmd.StandardInput.Flush();
                 cmd.StandardInput.Close();
                 cmd.WaitForExit();
 
                 cmd.Start();
-                cmd.StandardInput.WriteLine($"ffmpeg.exe -y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 2 -c:a aac '{outputNameLbl.Text}'");
+                cmd.StandardInput.WriteLine($"./ffmpeg.exe -y -i '{temp_path}' -c:v libx264 -b:v {bitrate}k -pass 2 -c:a aac '{outputNameLbl.Text}'");
+                cmd.StandardInput.Flush();
+                cmd.StandardInput.Close();
+                cmd.WaitForExit();
+            } else
+            {
+                cmd.Start();
+                cmd.StandardInput.WriteLine($"Move-Item -Path '{temp_path}' -Destination '{outputNameLbl.Text}'");
                 cmd.StandardInput.Flush();
                 cmd.StandardInput.Close();
                 cmd.WaitForExit();
