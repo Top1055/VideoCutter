@@ -160,21 +160,41 @@ namespace Video_Cutter
             // Grab video data
             using (ShellFile shell = ShellFile.FromFilePath(load_file.FileName))
             {
-                string length = shell.Properties.System.Media.Duration.FormatForDisplay(PropertyDescriptionFormatOptions.None);
-                int fps = ((int)(shell.Properties.System.Video.FrameRate.Value / 1000));
-                int width = (int)shell.Properties.System.Video.FrameWidth.Value;
-                int height = (int)shell.Properties.System.Video.FrameHeight.Value;
-                float file_size = new FileInfo(load_file.FileName).Length / (1024 * 1024);
+                string length = null;
+                int fps, width, height;
+                float file_size;
+
+                try {
+                    file_size = new FileInfo(load_file.FileName).Length / (1024 * 1024);
+                    length = shell.Properties.System.Media.Duration.FormatForDisplay(PropertyDescriptionFormatOptions.None);
+                    width = (int)shell.Properties.System.Video.FrameWidth.Value;
+                    height = (int)shell.Properties.System.Video.FrameHeight.Value;
+                    fps = ((int)(shell.Properties.System.Video.FrameRate.Value / 1000));
+                }
+                catch(Exception ex) {
+                    //If anything failed keep succusful data and replace failed
+                    length = length ?? "unknown";
+                    file_size = -1;
+                    fps = -1;
+                    width = -1;
+                    height = -1;
+                }
 
                 // Create source video settings
-                src_video = new Video_settings(fps, width, height, file_size, "00:00:00", length);
+                src_video = new Video_settings(
+                    fps,
+                    width,
+                    height,
+                    file_size,
+                    "00:00:00",
+                    length
+                );
 
-                // Set fields on form
+                end_time.Text = length;
                 video_fps.Text = fps.ToString();
                 video_width.Text = width.ToString();
                 video_height.Text = height.ToString();
                 video_size.Text = file_size.ToString();
-                end_time.Text = length;
 
                 // Enable forms
                 time_box.Enabled = true;
@@ -284,9 +304,9 @@ namespace Video_Cutter
             TimeSpan start = TimeSpan.Parse(start_time.Text);
             TimeSpan end = TimeSpan.Parse(end_time.Text);
 
-            string audio_bitrate = audio_checked.Checked ? audio_size.Text : "128K";
-            string res = res_checkbox.Checked ? video_width.Text + "x" + video_height.Text : src_video.Width + "x" + src_video.Height;
-            string fps = change_fps.Checked ? video_fps.Text : src_video.FPS.ToString();
+            string audio_bitrate = audio_checked.Checked ? "-b:a " + audio_size.Text : "";
+            string res = res_checkbox.Checked ? "-s " + video_width.Text + "x" + video_height.Text : "";
+            string fps = change_fps.Checked ? "-r " + video_fps.Text : "";
 
             Process cmd = new Process();
             cmd.StartInfo.FileName = @"powershell.exe";
@@ -297,7 +317,7 @@ namespace Video_Cutter
             cmd.Start();
 
 
-            cmd.StandardInput.WriteLine($"./ffmpeg.exe -y -i '{fileNameLbl.Text}' -ss {start_time.Text} -t {end - start} -async 1 -strict -2 -s {res} -r {fps} -b:a {audio_bitrate} '{temp_path}'");
+            cmd.StandardInput.WriteLine($"./ffmpeg.exe -y -i '{fileNameLbl.Text}' -ss {start_time.Text} -t {end - start} -async 1 -strict -2 {res} {fps} {audio_bitrate} '{temp_path}'");
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
             cmd.WaitForExit();
